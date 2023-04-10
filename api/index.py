@@ -11,7 +11,7 @@ env_variable = os.environ['TEST_VARIABLE']
 @app.route('/', methods=['GET', 'POST'])
 def handle_requests():
     if request.method == 'GET':
-        return env_variable + "." if env_variable else 'No env variable found.'
+        return env_variable + ". Make a POST request to use this program." if env_variable else 'No env variable found.'
     elif request.method == 'POST':
         data = request.json
         message = main_process.main(data)
