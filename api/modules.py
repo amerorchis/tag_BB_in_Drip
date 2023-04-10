@@ -35,7 +35,7 @@ def blackbaud(names):
         for name in names:
             r = bb_session.get(f'https://api.sky.blackbaud.com/constituent/v1/constituents/search?search_text={name}&strict_search=True')
             
-            count = print(r.json()['count'])
+            count = r.json()['count']
             if count == 1:
                 emails.append(r.json()['value'][0]['email'])
             else:
@@ -48,13 +48,13 @@ def blackbaud(names):
 def generate_message(names, emails, errors):
     string = 'The following people were tagged:\n\n'
     for i in range(len(emails)):
-        string += f'{names[i]}, {emails[i]}\n'
+        string += f'• {names[i]}, {emails[i]}\n'
     cc = False
     
     if errors:
-        string += '\n The following people had multiple emails on record, so they could not be automatically tagged:'
+        string += '\nThe following people had multiple emails on record, so they could not be automatically tagged:\n'
         for i in errors:
-            string += f'{i}\n'
+            string += f'• {i}\n'
         cc = 'andrew@glacier.org'
 
     return string, cc
