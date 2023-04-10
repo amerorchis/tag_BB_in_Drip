@@ -45,8 +45,9 @@ def blackbaud(names):
     print(f'\n\n\nEmails:{emails}\n')
     return emails, errors
 
-def generate_message(names, emails, errors):
-    string = 'The following people were tagged:\n\n'
+def generate_message(names, emails, errors, email):
+    recip = email[0].upper() + email[1:-12]
+    string = f'Hi {recip},\n\nThe following people were tagged:\n'
     for i in range(len(emails)):
         string += f'• {names[i]}, {emails[i]}\n'
     cc = False

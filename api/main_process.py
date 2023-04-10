@@ -5,7 +5,7 @@ from api.email_confirm import send_email
 def main(data):
     names, notification_email, batch = store_names(data)
     emails, errors = blackbaud(names)
-    message, cc = generate_message(names, emails, errors)
+    message, cc = generate_message(names, emails, errors, notification_email)
     
     drip(emails)
     send_email(notification_email, cc, message, batch)
