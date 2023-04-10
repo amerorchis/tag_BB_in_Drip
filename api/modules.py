@@ -1,7 +1,7 @@
 import json
 import requests
 from BbApiConnector import BbApiConnector
-from drip import *
+from api.drip import *
 import os
 import tempfile
 
