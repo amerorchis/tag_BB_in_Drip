@@ -4,14 +4,10 @@ from api.email_confirm import send_email
 # main workflow
 def main(data):
     names, notification_email, batch = store_names(data)
-    bb_data = blackbaud(names)
-    emails = extract_emails(bb_data)
-    message, cc = generate_message(names, emails)
+    emails, errors = blackbaud(names)
+    message, cc = generate_message(names, emails, errors)
     
-    if not cc:
-        drip(emails)
-        pass
-    
+    drip(emails)
     send_email(notification_email, cc, message, batch)
 
     print(message)

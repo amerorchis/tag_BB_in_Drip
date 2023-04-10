@@ -1,7 +1,7 @@
 import json
 import requests
 from BbApiConnector import BbApiConnector
-from api.drip import *
+from drip import *
 import os
 import tempfile
 
@@ -30,33 +30,31 @@ def blackbaud(names):
         api_conn = BbApiConnector(tmp.name)
         bb_session = api_conn.get_session()
         
-        info = list()
+        emails = list()
+        errors = list()
         for name in names:
             r = bb_session.get(f'https://api.sky.blackbaud.com/constituent/v1/constituents/search?search_text={name}&strict_search=True')
-            info.append(r.json())
+            
+            count = print(r.json()['count'])
+            if count == 1:
+                emails.append(r.json()['value'][0]['email'])
+            else:
+                errors.append(name)
 
     # Export the data for use in future steps
-    print(info)
-    return json.dumps(info)
-
-def extract_emails(bb_data):
-    l = bb_data.split(',')
-    emails = list()
-    for i in l:
-        if 'email' in i:
-          emails.append(i.split(':')[1].strip()[1:-1])
     print(f'\n\n\nEmails:{emails}\n')
-    return emails
+    return emails, errors
 
-def generate_message(names, emails):
-    if len(names) == len(emails):
-        string = 'The following people were tagged:\n\n'
-        for i in range(len(emails)):
-            string += f'{names[i]}, {emails[i]}\n'
-        cc = False
+def generate_message(names, emails, errors):
+    string = 'The following people were tagged:\n\n'
+    for i in range(len(emails)):
+        string += f'{names[i]}, {emails[i]}\n'
+    cc = False
     
-    else:
-        string = f'This request could not be processed.\nThere were {len(names)} names on the list, but {len(emails)} emails. Since I could not match the data, no one was tagged. Andrew has been notified of the error.\n\n'
+    if errors:
+        string += '\n The following people had multiple emails on record, so they could not be automatically tagged:'
+        for i in errors:
+            string += f'{i}\n'
         cc = 'andrew@glacier.org'
 
     return string, cc
@@ -70,7 +68,6 @@ def drip(emails):
     headers = {"Authorization": authorization}
     url = f'https://api.getdrip.com/v2/{account_ID}/tags'
 
-    # Export the data for use in future steps
     for email in emails:
         payload= { 
             "tags": [{ 

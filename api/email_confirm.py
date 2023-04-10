@@ -40,4 +40,5 @@ def send_email(notification_email, cc, body_message, batch):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
     server.quit()
+    print('Email sent.')
     
