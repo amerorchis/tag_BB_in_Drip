@@ -35,7 +35,7 @@ def blackbaud(names):
             
             count = r.json()['count']
             if count == 1:
-                emails.append(r.json()['value'][0]['email'])
+                emails.append(r.json()['value'][0]['email'].strip())
             else:
                 errors.append(name)
 
