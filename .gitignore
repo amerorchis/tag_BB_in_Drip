@@ -1,0 +1,7 @@
+.vercel
+BbApiConnector_Python
+DripConnector
+__pycache__
+private
+api/test.py
+unused
