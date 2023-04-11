@@ -18,7 +18,7 @@ def main(data):
     if emails:
         tagging_failed = drip(emails)
     
-    message, cc = generate_message(names, emails, errors, notification_email, tagging_failed)
+    message, cc = generate_message(emails, errors, notification_email, tagging_failed)
     send_email(notification_email, cc, message, batch)
 
     return message
