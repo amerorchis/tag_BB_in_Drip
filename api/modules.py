@@ -1,7 +1,6 @@
 import json
 import requests
 from BbApiConnector import BbApiConnector
-from api.drip import *
 import os
 import tempfile
 from api.api_call import API_Search
