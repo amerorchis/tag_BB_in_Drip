@@ -20,7 +20,7 @@ def store_names(data):
     
     email = data['email']
     batch = data['batch']
-    print(names_valid)
+    # print(names_valid)
     return names_valid, email, batch
 
 def blackbaud(names):
@@ -82,7 +82,7 @@ def drip(emails):
         data = json.dumps(payload)
         response = requests.post(url, headers=headers, data=data)
         success = 'successly tagged.' if response.status_code == 201 else 'tagging failed.'
-        print(f'{email} {success}')
+        # print(f'{email} {success}')
         if success == 'tagging failed.':
             tagging_failed.append(email)
         
@@ -92,6 +92,7 @@ def drip(emails):
             try:
                 result = future.result()
             except Exception as e:
-                print(e)
+                pass
+                # print(e)
     
     return tagging_failed
