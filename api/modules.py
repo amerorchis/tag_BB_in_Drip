@@ -42,15 +42,15 @@ def generate_message(emails, errors, email, tagging_failed):
     string = f'Hi {recip},\n\nThe following people were tagged:\n'
     for i in range(len(emails)):
         if emails[i][0] not in tagging_failed:
-            string += f'• {emails[i][1]}, {emails[i][0]}\n'
+            string += f'  •  {emails[i][1]}, {emails[i][0]}\n'
         else:
-            no_tag.append(f'• {emails[i][1]}, {emails[i][0]}\n')
+            no_tag.append(f'  •  {emails[i][1]}, {emails[i][0]}\n')
     cc = False
     
     if errors:
         string += '\nThe following people had either 0 or 2+ emails on record, so they could not be automatically tagged:\n'
         for i in errors:
-            string += f'• {i}\n'
+            string += f'  •  {i}\n'
         cc = 'andrew@glacier.org'
     
     if no_tag:
