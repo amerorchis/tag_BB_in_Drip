@@ -39,7 +39,7 @@ class API_Search:
             if r.status_code == 200:
                 count = r.json()['count']
                 if count == 1:
-                    self.emails.append(r.json()['value'][0]['email'].strip())
+                    self.emails.append((r.json()['value'][0]['email'].strip(), name))
                     break
                 else:
                     self.errors.append(name)

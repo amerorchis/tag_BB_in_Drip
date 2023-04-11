@@ -36,15 +36,15 @@ def blackbaud(names):
         
     return emails, errors
 
-def generate_message(names, emails, errors, email, tagging_failed):
+def generate_message(emails, errors, email, tagging_failed):
     recip = email[0].upper() + email[1:-12]
     no_tag = list()
     string = f'Hi {recip},\n\nThe following people were tagged:\n'
     for i in range(len(emails)):
-        if emails[i] not in tagging_failed:
-            string += f'• {names[i]}, {emails[i]}\n'
+        if emails[i][0] not in tagging_failed:
+            string += f'• {emails[i][1]}, {emails[i][0]}\n'
         else:
-            no_tag.append('• {names[i]}, {emails[i]}\n')
+            no_tag.append(f'• {emails[i][1]}, {emails[i][0]}\n')
     cc = False
     
     if errors:
@@ -62,6 +62,8 @@ def generate_message(names, emails, errors, email, tagging_failed):
     return string, cc
 
 def drip(emails):
+    emails = [t[0] for t in emails]
+
     drip_token = os.environ['DRIP_TOKEN']
     account_ID = os.environ['DRIP_ACCOUNT']
     token = drip_token
