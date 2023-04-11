@@ -48,7 +48,7 @@ def generate_message(emails, errors, email, tagging_failed):
     cc = False
     
     if errors:
-        string += '\nThe following people had multiple emails on record, so they could not be automatically tagged:\n'
+        string += '\nThe following people had either 0 or 2+ emails on record, so they could not be automatically tagged:\n'
         for i in errors:
             string += f'• {i}\n'
         cc = 'andrew@glacier.org'
