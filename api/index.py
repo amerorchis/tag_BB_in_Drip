@@ -14,5 +14,5 @@ def handle_requests():
         return env_variable + ". Make a POST request to use this program." if env_variable else 'No env variable found.'
     elif request.method == 'POST':
         data = request.json
-        main_process.main(data)
-        return
+        message = main_process.main(data)
+        return message
