@@ -17,6 +17,7 @@ def store_names(data):
     
     email = data['email']
     batch = data['batch']
+    print(names_valid)
     return names_valid, email, batch
 
 def blackbaud(names):
