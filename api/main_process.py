@@ -8,7 +8,6 @@ def main(data):
         batch = ''
         names, notification_email, batch = store_names(data)
         emails, errors = blackbaud(names)
-        message, cc = generate_message(names, emails, errors, notification_email)
     except Exception as e:
         message = e
         cc = 'andrew@glacier.org'
@@ -17,8 +16,9 @@ def main(data):
     batch = batch if batch else ''
 
     if emails:
-        drip(emails)
+        tagging_failed = drip(emails)
     
+    message, cc = generate_message(names, emails, errors, notification_email, tagging_failed)
     send_email(notification_email, cc, message, batch)
 
     print(message)
