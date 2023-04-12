@@ -39,7 +39,7 @@ def blackbaud(names):
 def generate_message(emails, errors, email, tagging_failed):
     recip = email[0].upper() + email[1:-12]
     no_tag = list()
-    string = f'Hi {recip},\n\nThe following people were tagged:\n'
+    string = f'Hi {recip},\n\nThe following {len(emails) - len(no_tag)} people were tagged:\n'
     for i in range(len(emails)):
         if emails[i][0] not in tagging_failed:
             string += f'  •  {emails[i][1]}, {emails[i][0]}\n'
