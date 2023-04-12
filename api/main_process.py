@@ -10,7 +10,7 @@ def main(data):
         
         names, notification_email, batch = store_names(data)
 
-        if len(names>25):
+        if len(names)>25:
             return chunk_names(names, notification_email, batch)
         
         else:
