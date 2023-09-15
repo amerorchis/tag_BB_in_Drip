@@ -6,3 +6,4 @@ private
 api/test.py
 unused
 environment.env
+test_names.py

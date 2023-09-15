@@ -1,6 +1,8 @@
 from api.modules import *
 from api.email_confirm import send_email
 from api.chunk import chunk_names
+from timeout_decorator import TimeoutError
+from flask import jsonify
 
 # main workflow
 def main(data):
@@ -14,7 +16,11 @@ def main(data):
             return chunk_names(names, notification_email, batch)
         
         else:
-            emails, errors = blackbaud(names)
+            try:
+                emails, errors = blackbaud(names)
+            except TimeoutError:
+                return jsonify(error="Timeout", message="The server could not complete the task within the specified time."), 504
+
 
             if emails:
                 tagging_failed = drip(emails)
@@ -29,4 +35,4 @@ def main(data):
         batch = batch if batch else ''
         send_email(notification_email, cc, message, batch)
 
-    return message
+    return jsonify(message=f"The server processed the request for batch {batch}. {len(emails)}/{len(names)} emails found. Confirmation of tagged emails sent to {notification_email}."), 200

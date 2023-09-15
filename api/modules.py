@@ -3,8 +3,13 @@ import requests
 from BbApiConnector import BbApiConnector
 import os
 import tempfile
-from api.api_call import API_Search
 import concurrent.futures
+from timeout_decorator import timeout, TimeoutError
+
+try:
+    from api.api_call import API_Search
+except ModuleNotFoundError:
+    from api_call import API_Search
 
 def store_names(data):
     name_list = data['names'].split(', ')
@@ -22,6 +27,7 @@ def store_names(data):
     # print(names_valid)
     return names_valid, email, batch
 
+@timeout(8)
 def blackbaud(names):
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as tmp:
         bb_sec = os.environ['BB_CONFIG']
@@ -35,6 +41,16 @@ def blackbaud(names):
         emails, errors = api.return_data()
         
     return emails, errors
+
+if __name__ == "__main__":
+    from test_names import names
+    from datetime import datetime
+    now = datetime.now()
+    try:
+        print(blackbaud(names))
+        print(f'{datetime.now() - now} sec. for {len(names)} names')
+    except TimeoutError:
+        print(f'Timeout after {datetime.now() - now} sec.')
 
 def generate_message(emails, errors, email, tagging_failed):
     recip = email[0].upper() + email[1:-12]
