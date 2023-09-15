@@ -5,7 +5,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 import os
 
-def send_email(notification_email, cc, body_message, batch):
+def send_email(notification_email, cc, body_message, batch, tag_state):
+    req_type = 'Tag' if tag_state else 'Untag'
     sender_email = os.environ['EMAIL']
     sender_pw = os.environ['EMAIL_PW']
 
@@ -25,7 +26,7 @@ def send_email(notification_email, cc, body_message, batch):
         message['Cc'] = cc
 
     # Add subject and body to the message
-    message['Subject'] = f'Constituents from {batch} Tagged'
+    message['Subject'] = f'Constituents from {batch} {req_type}ged'
     message.attach(MIMEText(body, 'plain'))
 
     # Set up SMTP server

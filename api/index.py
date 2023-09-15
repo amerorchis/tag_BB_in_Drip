@@ -1,10 +1,12 @@
 from flask import Flask, request
 import api.main_process as main_process
 import os
+from flask_cors import CORS
 
 # Main app route
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "https://host.nxt.blackbaud.com"}})
 env_variable = ""
 env_variable = os.environ['TEST_VARIABLE']
 
@@ -15,4 +17,7 @@ def handle_requests():
     elif request.method == 'POST':
         data = request.json
         message = main_process.main(data)
+        print(message[0].data)
         return message
+    elif request.method == 'OPTIONS':
+        return 200
