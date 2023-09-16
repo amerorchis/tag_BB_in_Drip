@@ -20,8 +20,8 @@ def main(data):
         message, cc = generate_message(emails, errors, notification_email, tagging_failed, tag, tag_state)
         send_email(notification_email, cc, message, batch, tag_state)
         
-        req_type = 'tag' if tag_state else 'untag'
-        return jsonify(message=f"The server processed the {req_type} request for {batch}. {len(emails)}/{len(names)} emails found. Confirmation of tagged emails sent to {notification_email}."), 200
+        req_type = 'Tagging' if tag_state else 'Untagging'
+        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found. Confirmation sent to {notification_email}."), 200
 
     except Exception as e:
         message = e
@@ -30,4 +30,4 @@ def main(data):
         notification_email = notification_email if notification_email else 'andrew@glacier.org'
         batch = batch if batch else ''
         send_email(notification_email, cc, message, batch)
-        return jsonify(message=f"The server failed to process this request. A notification with logs was sent to you and Andrew."), 500
+        return jsonify(message=f"The server failed. A notification with logs was sent to you and Andrew."), 500
