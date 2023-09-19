@@ -10,22 +10,12 @@ except ModuleNotFoundError:
 
 def store_names(data):
     name_list = data['names']
-    names_valid = list()
-
-    # Sort out Jr. or IV or other non-name values that end up in the list.
-    for i in name_list:
-        i = i.strip()
-        i = i.replace('  ',' ')
-        i = i.split(',')[0]
-        if i not in names_valid:
-            if len(i) > 4:
-                names_valid.append(i)
-    
+    name_list = [i for i in name_list if len(i)>4]
     email = data['email']
     batch = data['batch']
     tag = data['tag']
     tag_state = data['tag_state']
-    return names_valid, email, batch, tag, tag_state
+    return name_list, email, batch, tag, tag_state
 
 def blackbaud(names):
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as tmp:
@@ -53,7 +43,7 @@ def generate_message(emails, errors, email, tagging_failed, tag, tag_state):
     recip = email[0].upper() + email[1:-12]
     no_tag = list()
 
-    string = f'Hi {recip},\n\nThe following {len(emails) - len(no_tag)} people were {req_type}ged from \'{tag}\':\n'
+    string = f'Hi {recip},\n\nThe following {len(emails) - len(errors)} people were {req_type}ged from \'{tag}\':\n'
     for i in range(len(emails)):
         if emails[i][0] not in tagging_failed:
             string += f'  •  {emails[i][1]}, {emails[i][0]}\n'

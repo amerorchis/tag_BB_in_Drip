@@ -14,14 +14,33 @@ def main(data):
         
         emails, errors = blackbaud(names)
 
+        print("Errors: ", errors)
+
         if emails:
             tagging_failed = drip(emails, tag, tag_state)
+            print("Failed: ", tagging_failed)
         
         message, cc = generate_message(emails, errors, notification_email, tagging_failed, tag, tag_state)
-        send_email(notification_email, cc, message, batch, tag_state)
+
+        if 'test674' not in tag:
+            send_email(notification_email, cc, message, batch, tag_state)
         
+        no_tag = errors + tagging_failed
+
         req_type = 'Tagging' if tag_state else 'Untagging'
-        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found. Confirmation sent to {notification_email}."), 200
+
+        email_success = [i[1] for i in emails if i not in tagging_failed]
+        email_fail = []
+
+        for i in tagging_failed:
+            emails = [i[0] for i in emails]
+            if i in emails:
+                index = emails.index(i)
+                email_fail.append(emails[index][1])
+
+        email_fail.extend([i for i in no_tag if len(i)>4])
+
+        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found. Confirmation sent to {notification_email}.", outcome="Success!", success=email_success, fail=email_fail), 200
 
     except Exception as e:
         message = e
@@ -30,4 +49,4 @@ def main(data):
         notification_email = notification_email if notification_email else 'andrew@glacier.org'
         batch = batch if batch else ''
         send_email(notification_email, cc, message, batch)
-        return jsonify(message=f"The server failed. A notification with logs was sent to you and Andrew."), 500
+        return jsonify(message=f"The server failed. A notification with logs was sent to you and Andrew.", outcome="Operation Failed"), 500
