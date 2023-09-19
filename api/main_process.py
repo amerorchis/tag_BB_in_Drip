@@ -20,9 +20,9 @@ def main(data):
             tagging_failed = drip(emails, tag, tag_state)
             print("Failed: ", tagging_failed)
         
-        message, cc = generate_message(emails, errors, notification_email, tagging_failed, tag, tag_state)
 
-        if 'test674' not in tag:
+        if notification_email and 'test_only' not in tag:
+            message, cc = generate_message(emails, errors, notification_email, tagging_failed, tag, tag_state)
             send_email(notification_email, cc, message, batch, tag_state)
         
         no_tag = errors + tagging_failed
@@ -40,7 +40,7 @@ def main(data):
 
         email_fail.extend([i for i in no_tag if len(i)>4])
 
-        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found. Confirmation sent to {notification_email}.", outcome="Success!", success=email_success, fail=email_fail), 200
+        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found.", outcome="Success!", success=email_success, fail=email_fail), 200
 
     except Exception as e:
         message = e
@@ -48,5 +48,5 @@ def main(data):
         cc = 'andrew@glacier.org'
         notification_email = notification_email if notification_email else 'andrew@glacier.org'
         batch = batch if batch else ''
-        send_email(notification_email, cc, message, batch)
+        send_email(notification_email, cc, message, batch, tag_state)
         return jsonify(message=f"The server failed. A notification with logs was sent to you and Andrew.", outcome="Operation Failed"), 500
