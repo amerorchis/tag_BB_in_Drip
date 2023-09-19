@@ -14,11 +14,11 @@ def main(data):
         
         emails, errors = blackbaud(names)
 
-        print("Errors: ", errors)
+        # print("Errors: ", errors)
 
         if emails:
             tagging_failed = drip(emails, tag, tag_state)
-            print("Failed: ", tagging_failed)
+            # print("Failed: ", tagging_failed)
         
 
         if notification_email and 'test_only' not in tag:

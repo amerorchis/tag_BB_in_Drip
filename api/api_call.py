@@ -59,5 +59,5 @@ class API_Search:
                     break
     
     def return_data(self):
-        print(self.emails, self.errors)
+        # print(self.emails, self.errors)
         return self.emails, self.errors
