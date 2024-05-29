@@ -7,6 +7,6 @@ api/test.py
 unused
 environment.env
 test_names.py
-run.py
 tag_bb
 test.py
+.DS_Store
