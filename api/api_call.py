@@ -1,27 +1,31 @@
 import threading
 from ratelimiter import RateLimiter
 import time
+try:
+    from api.batch_post import BatchPost
+    from api.constituent import Constituent
+except ModuleNotFoundError:
+    from batch_post import BatchPost
+    from constituent import Constituent
 
 class API_Search:
-    def __init__(self, names, bb_session):
-        self.names = names
+    def __init__(self, batch: BatchPost, bb_session):
+        self.constits = batch.constits
         self.bb_session = bb_session
         self.emails = []
         self.errors = []
         self.bad_responses = []
-        self.api_calls(self.names)
 
-    def api_calls(self, names):
-        names = self.names
+    def api_calls(self):
         # Create a list to hold the threads
         threads = []
 
         # Start a thread for each name in the list        
         rate_limiter = RateLimiter(max_calls=10, period=1)
 
-        for name in names:
+        for constit in self.constits:
             with rate_limiter:
-                thread = threading.Thread(target=self.search_constituent, args=(name,))
+                thread = threading.Thread(target=self.search_constituent, args=(constit,))
                 threads.append(thread)
                 thread.start()
 
@@ -29,35 +33,32 @@ class API_Search:
         for thread in threads:
             thread.join()
 
-    def search_constituent(self, name):
+    def search_constituent(self, constit: Constituent):
         bb_session = self.bb_session
 
-        # Sort out Jr. or IV or other non-name values that end up in the list.
-        original = name
-        name = name.strip()
-        name = name.replace('  ',' ')
-        name = name.split(',')[0]
+        id = constit.id
+        name = constit.name
 
-        if name:
-            while True:
-                r = bb_session.get(f'https://api.sky.blackbaud.com/constituent/v1/constituents/search?search_text={name}&strict_search=True')
-                
-                # Process the response
-                if r.status_code == 200:
-                    count = r.json()['count']
-                    if count == 1:
-                        self.emails.append((r.json()['value'][0]['email'].strip(), original))
+        while True:
+            r = bb_session.get(f'https://api.sky.blackbaud.com/constituent/v1/constituents/{id}')
+            # Process the response
+            if r.status_code == 200:
+                email = r.json()['email']['address'].strip()
+                do_not_email = r.json()['email']['do_not_email']
+                for i in self.constits:
+                    if i.id == id:
+                        i.add_email(email, do_not_email)
+                        i.status('found')
                         break
-                    else:
-                        self.errors.append(original)
-                        break
-                elif r.status_code == 429:
-                    # wait for the specified retry-after time
-                    time.sleep(int(r.headers["Retry-After"]))
-                else:
-                    self.errors.append(original)
-                    break
-    
+                break
+
+            elif r.status_code == 429:
+                # wait for the specified retry-after time
+                time.sleep(int(r.headers["Retry-After"]))
+            else:
+                i.status('error')
+                break
+
     def return_data(self):
         # print(self.emails, self.errors)
         return self.emails, self.errors

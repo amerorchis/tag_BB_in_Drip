@@ -1,52 +1,45 @@
-from api.modules import *
-from api.email_confirm import send_email
-from api.drip import drip
+try:
+    from api.blackbaud import blackbaud
+    from api.email_confirm import send_email
+    from api.drip import drip
+    from api.batch_post import BatchPost
+except ModuleNotFoundError:
+    from blackbaud import blackbaud
+    from email_confirm import send_email
+    from drip import drip
+    from batch_post import BatchPost
 from flask import jsonify
+from dotenv import load_dotenv
+
+load_dotenv('environment.env')
 
 # main workflow
-def main(data):
+def process_post(data):
     try:
-        notification_email = ''
-        batch = ''
-        tagging_failed = []
+        batch = BatchPost(data)
+        blackbaud(batch)
+        if not batch.has_emails:
+            print('No emails found')
+            return jsonify(message="No emails found.")
 
-        names, notification_email, batch, tag, tag_state = store_names(data)
-        
-        emails, errors = blackbaud(names)
+        # drip(batch)
 
-        # print("Errors: ", errors)
+        if batch.notif_email and batch.tag != 'test_only':
+            batch.gen_message()
+            send_email(batch.notif_email, batch.cc, batch.message, batch.batch, batch.tag_state)
 
-        if emails:
-            tagging_failed = drip(emails, tag, tag_state)
-            # print("Failed: ", tagging_failed)
-        
-
-        if notification_email and 'test_only' not in tag:
-            message, cc = generate_message(emails, errors, notification_email, tagging_failed, tag, tag_state)
-            send_email(notification_email, cc, message, batch, tag_state)
-        
-        no_tag = errors + tagging_failed
-
-        req_type = 'Tagging' if tag_state else 'Untagging'
-
-        email_success = [i[1] for i in emails if i not in tagging_failed]
-        email_fail = []
-
-        for i in tagging_failed:
-            emails = [i[0] for i in emails]
-            if i in emails:
-                index = emails.index(i)
-                email_fail.append(emails[index][1])
-
-        email_fail.extend([i for i in no_tag if len(i)>4])
-
-        return jsonify(message=f"{req_type} Processed for {batch}. {len(emails)}/{len(names)} found.", outcome="Success!", success=email_success, fail=email_fail), 200
+        return jsonify(**batch.gen_resp()), 200
 
     except Exception as e:
         message = e
         print(e)
         cc = 'andrew@glacier.org'
-        notification_email = notification_email if notification_email else 'andrew@glacier.org'
+        notification_email = batch.notif_email if batch.notif_email else 'andrew@glacier.org'
         batch = batch if batch else ''
-        send_email(notification_email, cc, message, batch, tag_state)
-        return jsonify(message=f"The server failed. A notification with logs was sent to you and Andrew.", outcome="Operation Failed"), 500
+        send_email(notification_email, cc, message, batch.batch, batch.tag_state)
+        return jsonify(message="The server failed. A notification with logs was sent to you and Andrew.", outcome="Operation Failed"), 500
+
+if __name__ == "__main__":
+    from test_names import names
+    test_data = names
+    process_post(test_data)

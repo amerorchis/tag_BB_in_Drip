@@ -1,8 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 import os
 
 def send_email(notification_email, cc, body_message, batch, tag_state):
@@ -13,6 +11,7 @@ def send_email(notification_email, cc, body_message, batch, tag_state):
     # Sender and recipient info
     sender_name = "Tag Confirmation"
     receiver_email = notification_email
+
     # Message details
     body = body_message
 
@@ -42,4 +41,3 @@ def send_email(notification_email, cc, body_message, batch, tag_state):
 
     server.quit()
     print('Email sent.')
-    
