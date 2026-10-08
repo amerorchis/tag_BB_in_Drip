@@ -1,12 +1,13 @@
 import threading
-from ratelimiter import RateLimiter
 import time
 try:
     from api.batch_post import BatchPost
     from api.constituent import Constituent
+    from api.rate_limiter import RateLimiter
 except ModuleNotFoundError:
     from batch_post import BatchPost
     from constituent import Constituent
+    from rate_limiter import RateLimiter
 
 class API_Search:
     def __init__(self, batch: BatchPost, bb_session):
